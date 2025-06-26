@@ -29,10 +29,10 @@ class ModelEvaluator:
         self.class_names = ['ac', 'lctc', 'pc', 'ph']
         # 시각화를 위한 클래스별 색상 정의
         self.class_colors = {
-            0: (255, 0, 0),     # AC - 빨강
-            1: (0, 255, 0),     # LCTC - 초록
-            2: (0, 0, 255),     # PC - 파랑
-            3: (255, 255, 0)    # PH - 노랑
+            0: (255, 0, 0),   
+            1: (0, 255, 0),   
+            2: (0, 0, 255),    
+            3: (255, 255, 0)   
         }
     
     def visualize_predictions(self, num_samples=10, output_dir="evaluation_results"):
