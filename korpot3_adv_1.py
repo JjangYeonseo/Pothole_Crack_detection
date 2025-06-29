@@ -216,17 +216,23 @@ class YOLOv8SegmentationTrainer:
 
         return results
 
+
+
     def visualize_predictions(self, model_path=None, num_samples=10):
         if model_path:
             model = YOLO(model_path)
         else:
             runs_dir = Path('runs/segment')
             if runs_dir.exists():
-                latest_run = max([d for d in runs_dir.iterdir() if d.is_dir()], 
-                               key=os.path.getctime)
+                candidates = [d for d in runs_dir.iterdir() if d.is_dir() and "train_" in d.name]
+                if not candidates:
+                   print("❌ 시각화 가능한 학습 결과가 없습니다.")
+                   return
+                latest_run = max(candidates, key=os.path.getctime)
                 model = YOLO(latest_run / 'weights' / 'best.pt')
+                print(f"🖼️ 시각화용 모델 로드: {latest_run / 'weights' / 'best.pt'}")
             else:
-                print("❌ 학습된 모델을 찾을 수 없습니다.")
+                print("❌ 학습된 모델 디렉토리를 찾을 수 없습니다.")
                 return
 
         image_dir = self.data_dir / 'val' / 'images'
@@ -237,19 +243,13 @@ class YOLOv8SegmentationTrainer:
         selected_images = images[:num_samples] if len(images) >= num_samples else images
 
         print(f"🖼️ {len(selected_images)}장 이미지 추론 중...")
-        
+    
         for i, img_path in enumerate(selected_images):
             results = model(img_path, save=False, stream=False, conf=0.25, iou=0.6)
-            
-            # 결과 이미지에 클래스 정보 추가
             result_img = results[0].plot()
-            
-            # 파일명에 원본 이름 포함
             original_name = img_path.stem
             save_path = save_dir / f"result_{i:02d}_{original_name}.jpg"
             cv2.imwrite(str(save_path), result_img)
-            
-            # 간단한 진행상황 표시
             if (i + 1) % 5 == 0 or i == len(selected_images) - 1:
                 print(f"   진행: {i+1}/{len(selected_images)}")
 
